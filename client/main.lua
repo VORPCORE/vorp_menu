@@ -281,3 +281,7 @@ end)
 AddEventHandler('menuapi:getData', function(cb)
     cb(MenuData)
 end)
+
+AddEventHandler("vorp_menu:getData", function(cb)
+    cb(MenuData)
+end)
