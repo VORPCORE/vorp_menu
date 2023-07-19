@@ -23,17 +23,17 @@ MenuData.RegisteredTypes['default'] = {
 
 
 function MenuData.Open(type, namespace, name, data, submit, cancel, change, close)
-    local menu     = {}
+    local menu                            = {}
 
-    menu.type      = type
-    menu.namespace = namespace
-    menu.name      = name
-    menu.data      = data
-    menu.submit    = submit
-    menu.cancel    = cancel
-    menu.change    = change
+    menu.type                             = type
+    menu.namespace                        = namespace
+    menu.name                             = name
+    menu.data                             = data
+    menu.submit                           = submit
+    menu.cancel                           = cancel
+    menu.change                           = change
 
-    menu.close     = function()
+    menu.close                            = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
 
         for i = 1, #MenuData.Opened, 1 do
@@ -49,7 +49,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.update    = function(query, newData)
+    menu.update                           = function(query, newData)
         for i = 1, #menu.data.elements, 1 do
             local match = true
 
@@ -283,5 +283,5 @@ AddEventHandler('menuapi:getData', function(cb)
 end)
 
 AddEventHandler("vorp_menu:getData", function(cb)
-    cb(MenuData)
+    return cb(MenuData)
 end)
