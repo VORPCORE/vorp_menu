@@ -9,47 +9,59 @@
 	font-family: HapnaSlabSerif-Medium;
 	src: url(../fonts/HapnaSlabSerif-Medium.ttf) format('truetype')
 }
+
 .item-image {
 	max-height: 50px;
 	max-width: 50px;
 	margin-right: 5px;
 }
+
+.grid-item img {
+	height: 90px;
+	width: 90px;
+}
+
 .menu {
 	font-family: "crock", crock, serif;
-	min-width: 510px;
+	min-width: 20vw;
 	height: auto;
 	color: #fff;
 	position: absolute;
-	padding: 8px;
+	padding: 35px;
 	background-image: url(inkroller_1a.png);
 	background-repeat: no-repeat;
 	background-position: center;
-	margin-top: 5%;
+	margin-top: -10px;
 	background-size: 100% 100%;
 }
 
 .topline {
-	width: 90%;
+	position: relative;
+	width: 87%;
 	height: 4px;
-	margin: auto auto;
+	left: 25px;
+	top: -3px;
 	background-image: url(divider_line.png);
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 100% 100%;
-	opacity: 0.6;
 }
 
 .scrollbottom {
-	width: 90%;
+	width: 88%;
 	height: 59px;
-	margin-left: auto;
+	margin-left: 25;
 	margin-right: auto;
-	margin-top: -20px;
+	margin-top: -15px;
 	background-image: url(scroller_right_bottom.png);
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 100% 100%;
-	opacity: 0.6;
+	/* opacity: 0.6; */
+}
+
+#item-label {
+	margin-top: 4px;
 }
 
 .head {
@@ -61,29 +73,28 @@
 	margin-right: 10px;
 }
 
+
 .menu .head {
 	text-align: center;
 	height: 100px;
 	color: #fff;
 	font-weight: 300;
-	font-size: 30px;
+	font-size: 35px;
 	background-image: url(menu_header_1a.png);
 	background-repeat: no-repeat;
 	background-position: center;
-	background-size: 95% 100%;
+	background-size: 100% 100%;
 	margin-bottom: 10px;
 	margin-top: 20px;
 }
 
 .menu .menu-items {
-	min-height: 60px;
-	max-height: 540px;
-	/* menu items*/
+	min-height: 5vh;
+	max-height: 39vh;
 	overflow-y: hidden;
 	inline-size: 480px;
 	overflow-wrap: break-word;
 	margin-left: 10px;
-	font-weight: 500;
 }
 
 
@@ -94,7 +105,6 @@
 	padding: 15px;
 	font-size: 20px;
 	text-align: left;
-	text-indent: px;
 	margin-top: 6px;
 	margin-left: auto;
 	margin-right: auto;
@@ -105,16 +115,24 @@
 	font-family: "crock", HapnaSlabSerif-Medium, serif;
 }
 
-.menu .menu-items .menu-item.selected {
-	background-image: url(selsected.png), url(selection_box_bg_1d.png);
+.menu .menu-items .menu-item.selected,
+.grid-container .grid-item.selected {
 	background-repeat: no-repeat;
 	background-position: center;
 	background-size: 100% 100%;
 }
 
+.menu .menu-items .menu-item.selected {
+	background-image: url(selsected.png), url(selection_box_bg_1d.png);
+}
+
+.grid-container .grid-item.selected {
+	background-image: url(selected-item-box.png), url(selection_box_bg_1d.png);
+}
+
 .menu .menu-items .menu-item.slider {
 	min-height: 2.5vh;
-	font-size: 16px;
+	font-size: 20px;
 }
 
 #slider-label {
@@ -132,7 +150,7 @@ i {
 .desciption {
 	text-align: center;
 	font-size: 18px;
-	font-family: sans-serif;
+	font-family: HapnaSlabSerif-Medium;
 	inline-size: 420px;
 	margin: auto;
 	overflow-wrap: break-word;
@@ -142,9 +160,6 @@ i {
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
-
-
-
 }
 
 .options-amount {
@@ -154,7 +169,6 @@ i {
 	margin-top: -5%;
 	margin-right: 7%;
 }
-
 
 
 .head>span {
@@ -179,9 +193,8 @@ i {
 
 .arrows {
 	width: 25%;
-	margin-left:80%;
-	margin-top:-24px;
-
+	margin-left: 80%;
+	margin-top: -28px;
 }
 
 
@@ -237,7 +250,7 @@ i {
 
 .menu.align-center {
 	left: 50%;
-	top: 50%;
+	top: 40;
 	transform: translate(-50%, -50%);
 }
 
@@ -262,6 +275,57 @@ i {
 	border-left: 4px solid #272733;
 }
 
+.grid-container {
+	display: grid;
+	grid-template-columns: repeat(4, 80px);
+	grid-gap: 0px 28px;
+}
+
+.grid-item {
+	width: 80px;
+	height: 80px;
+	padding: 12px;
+	margin-top: 5px;
+	margin-left: 31px;
+	background-image: url(selection_box_bg_1d.png);
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	font-family: "crock", HapnaSlabSerif-Medium, serif;
+}
+
+
+@media screen and (min-width: 1920px) and (max-height: 1080px) {
+	.menu {
+		padding: 25px;
+		margin-top: -2%;
+	}
+
+	.menu .menu-items .menu-item {
+		font-size: 16px;
+		padding: 13px;
+	}
+
+	#item-label {
+		margin-top: -2px;
+	}
+
+	.menu .menu-items {
+		min-height: 5vh;
+		max-height: 41.5vh;
+		inline-size: 399px;
+	}
+
+	#slider-label {
+		width: 40%;
+		font-size: 16px;
+	}
+
+	.menu .menu-items .menu-item.slider {
+		min-height: 2.5vh;
+		font-size: 16px;
+	}
+}
+
 @media (min-width:3840px) {
 
 	.menu {
@@ -282,5 +346,6 @@ i {
 
 
 }
+
 
 /* MADE BY SLIZZARN - DISCORD: slizzarn#1144 GITHUB: https://github.com/slizzarn-fivem */

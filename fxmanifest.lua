@@ -17,7 +17,5 @@ files {
 	'html/css/*.png',
 	'html/js/mustache.min.js',
 	'html/js/app.js',
-	'html/fonts/crock.ttf',
-	'html/fonts/HapnaSlabSerif-Medium.ttf',
+	'html/fonts/*ttf',
 }
-

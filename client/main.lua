@@ -1,6 +1,7 @@
 MenuData = {}
 MenuData.Opened = {}
 MenuData.RegisteredTypes = {}
+MenuData.LastSelectedIndex = {}
 
 MenuData.RegisteredTypes['default'] = {
     open  = function(namespace, name, data)
@@ -21,7 +22,6 @@ MenuData.RegisteredTypes['default'] = {
     end
 }
 
-
 function MenuData.Open(type, namespace, name, data, submit, cancel, change, close)
     local menu                            = {}
 
@@ -32,6 +32,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     menu.submit                           = submit
     menu.cancel                           = cancel
     menu.change                           = change
+    menu.data.selected                    = MenuData.LastSelectedIndex[menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
 
     menu.close                            = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
@@ -155,6 +156,11 @@ function MenuData.CloseAll()
     end
 end
 
+--[[ function MenuData.LastSelected(type, namespace, name)
+    local menuKey = type .. "_" .. namespace .. "_" .. name
+    return MenuData.LastSelectedIndex[menuKey] or 0
+end ]]
+
 function MenuData.GetOpened(type, namespace, name)
     for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
@@ -174,21 +180,19 @@ function MenuData.IsOpen(type, namespace, name)
 end
 
 function MenuData.ReOpen(oldMenu)
-    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel,
-        oldMenu.change, oldMenu.close)
+    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel, oldMenu.change, oldMenu.close)
 end
 
-local Timer, MenuType = 0, 'default'
-
+local MenuType = 'default'
 
 RegisterNUICallback('menu_submit', function(data)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
-
     if menu.submit ~= nil then
         menu.submit(data, menu)
     end
 end)
+
 
 RegisterNUICallback('playsound', function()
     PlaySoundFrontend("NAV_LEFT", "PAUSE_MENU_SOUNDSET", true, 0)
@@ -197,11 +201,11 @@ end)
 RegisterNUICallback('menu_cancel', function(data)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
-
     if menu.cancel ~= nil then
         menu.cancel(data, menu)
     end
 end)
+
 RegisterNUICallback('menu_change', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
 
@@ -220,15 +224,25 @@ RegisterNUICallback('menu_change', function(data)
     end
 end)
 
+RegisterNUICallback('update_last_selected', function(data)
+    local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    local menuKey = menu.type .. "_" .. menu.namespace .. "_" .. menu.name
+    if data.selected ~= nil then
+        MenuData.LastSelectedIndex[menuKey] = data.selected
+    end
+end)
 
-Citizen.CreateThread(function()
+RegisterNUICallback('closeui', function(data)
+    TriggerEvent("menuapi:closemenu")
+end)
+
+
+CreateThread(function()
     local PauseMenuState = false
     local MenusToReOpen  = {}
     while true do
-        Citizen.Wait(0)
+        Wait(0)
         if #MenuData.Opened > 0 then
-            -- this can be used to use prompts insead of controls
-
             if (IsControlJustReleased(0, 0x43DBF61F) or IsDisabledControlJustReleased(0, 0x43DBF61F)) then
                 SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'ENTER' })
             end
@@ -252,6 +266,7 @@ Citizen.CreateThread(function()
             if (IsControlJustReleased(0, 0x65F9EC5B) or IsDisabledControlJustReleased(0, 0x65F9EC5B)) then
                 SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'RIGHT' })
             end
+
             if IsPauseMenuActive() then
                 if not PauseMenuState then
                     PauseMenuState = true
@@ -274,14 +289,19 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNUICallback('closeui', function(data)
-    TriggerEvent("menuapi:closemenu")
-end)
-
 AddEventHandler('menuapi:getData', function(cb)
     cb(MenuData)
 end)
 
 AddEventHandler("vorp_menu:getData", function(cb)
     return cb(MenuData)
+end)
+
+
+AddEventHandler('onClientResourceStart', function(resourceName)
+    MenuData.LastSelectedIndex = {}
+end)
+
+exports("GetMenuData", function()
+    return MenuData
 end)
