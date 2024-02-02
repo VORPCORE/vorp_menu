@@ -296,7 +296,7 @@ i {
 
 @media screen and (min-width: 1920px) and (max-height: 1080px) {
 	.menu {
-		padding: 25px;
+		padding: 40px;
 		margin-top: -2%;
 	}
 
@@ -324,6 +324,20 @@ i {
 		min-height: 2.5vh;
 		font-size: 16px;
 	}
+
+	.grid-item {
+		width: 75px;
+		height: 75px;
+		padding: 12px;
+		margin-top: 5px;
+		margin-left: 1px;
+	}
+
+	.grid-container {
+		grid-template-columns: repeat(4, 75px);
+		grid-gap: 0px 25px;
+	}
+
 }
 
 @media (min-width:3840px) {
