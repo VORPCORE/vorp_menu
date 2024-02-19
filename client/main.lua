@@ -32,7 +32,8 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     menu.submit                           = submit
     menu.cancel                           = cancel
     menu.change                           = change
-    menu.data.selected                    = MenuData.LastSelectedIndex[menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
+    menu.data.selected                    = MenuData.LastSelectedIndex
+    [menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
 
     menu.close                            = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
@@ -180,7 +181,8 @@ function MenuData.IsOpen(type, namespace, name)
 end
 
 function MenuData.ReOpen(oldMenu)
-    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel, oldMenu.change, oldMenu.close)
+    MenuData.Open(oldMenu.type, oldMenu.namespace, oldMenu.name, oldMenu.data, oldMenu.submit, oldMenu.cancel,
+        oldMenu.change, oldMenu.close)
 end
 
 local MenuType = 'default'
@@ -226,6 +228,7 @@ end)
 
 RegisterNUICallback('update_last_selected', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    if not menu then return end
     local menuKey = menu.type .. "_" .. menu.namespace .. "_" .. menu.name
     if data.selected ~= nil then
         MenuData.LastSelectedIndex[menuKey] = data.selected
