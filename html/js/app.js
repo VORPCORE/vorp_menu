@@ -28,7 +28,7 @@
                     {{#image}}<img class="item-image" src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>{{/image}}
                     <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
                     <div class="arrows">
-                        {{#isSlider}}<i class="fas fa-arrow-circle-left"></i>{{/isSlider}}
+                        {{#isSlider}}<i class="fas fa-arrow-alt-circle-left"></i>{{/isSlider}}
                         <div id="slider-label">{{{sliderLabel}}}</div>
                         {{#isSlider}}<i class="fas fa-arrow-alt-circle-right"></i>{{/isSlider}}
                     </div>
