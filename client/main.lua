@@ -37,7 +37,6 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
 
     menu.close                            = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
-
         for i = 1, #MenuData.Opened, 1 do
             if MenuData.Opened[i] then
                 if MenuData.Opened[i].type == type and MenuData.Opened[i].namespace == namespace and MenuData.Opened[i].name == name then
@@ -116,6 +115,18 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     -- change the title of the current menu
     menu.setTitle                         = function(val)
         menu.data.title = val
+    end
+
+    menu.getElementByIndex                = function(index)
+        return menu.data.elements[index]
+    end
+
+    menu.getElementByValue                = function(value)
+        for i = 1, #menu.data.elements, 1 do
+            if menu.data.elements[i].value == value then
+                return menu.data.elements[i]
+            end
+        end
     end
 
     menu.removeElement                    = function(query)
