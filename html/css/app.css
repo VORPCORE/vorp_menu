@@ -316,7 +316,7 @@ i {
 	}
 
 	#slider-label {
-		width: 40%;
+		width: 50%;
 		font-size: 16px;
 	}
 
@@ -343,9 +343,7 @@ i {
 @media (min-width:3840px) {
 
 	.menu {
-
 		width: 670px;
-
 	}
 
 	.menu .menu-items .menu-item {
