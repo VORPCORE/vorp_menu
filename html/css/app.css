@@ -91,10 +91,12 @@
 .menu .menu-items {
 	min-height: 5vh;
 	max-height: 39vh;
-	overflow-y: hidden;
+	overflow-y: auto; /* Changed from hidden to auto to show scrollbar */
 	inline-size: 480px;
 	overflow-wrap: break-word;
 	margin-left: 10px;
+	scrollbar-width: auto; /* For Firefox */
+	scrollbar-color: #ffffff #000000; /* For Firefox */
 }
 
 
@@ -113,6 +115,13 @@
 	background-position: center;
 	background-size: 100% 110%;
 	font-family: "crock", HapnaSlabSerif-Medium, serif;
+}
+
+.menu-item {
+    cursor: pointer;
+}
+.menu-item:hover {
+    background-color: rgb(255, 10, 10);
 }
 
 .menu .menu-items .menu-item.selected,
@@ -257,22 +266,22 @@ i {
 /* WebKit scrollbar properties */
 ::-webkit-scrollbar {
 	width: 8px;
-	border-left: 4px solid #272733;
+	border-left: 4px solid #000000;
 }
 
 ::-webkit-scrollbar-track {
-	background: #272733;
-	border-left: 4px solid #272733;
+	background: #000000;
+	border-left: 4px solid #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: #1a242d;
-	border-left: 4px solid #272733;
+	background: #ffffff;
+	border-left: 4px solid #000000;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: #1a242d;
-	border-left: 4px solid #272733;
+	background: #ffffff;
+	border-left: 4px solid #000000;
 }
 
 .grid-container {
