@@ -6,6 +6,8 @@ author 'VORP edit by @outsider' --  SLIZZARN original author
 description 'A tool to build RedM menus for your scripts'
 repository 'https://github.com/VORPCORE/vorp_menu'
 
+shared_script 'config.lua'
+
 client_scripts {
 	'client/main.lua'
 }
