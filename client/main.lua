@@ -2,9 +2,10 @@ MenuData = {}
 MenuData.Opened = {}
 MenuData.RegisteredTypes = {}
 MenuData.LastSelectedIndex = {}
+MenuData.MouseEnabled = true
 
 MenuData.RegisteredTypes['default'] = {
-    open  = function(namespace, name, data)
+    open = function(namespace, name, data)
         SendNUIMessage({
             ak_menubase_action = 'openMenu',
             ak_menubase_namespace = namespace,
@@ -17,25 +18,39 @@ MenuData.RegisteredTypes['default'] = {
             ak_menubase_action = 'closeMenu',
             ak_menubase_namespace = namespace,
             ak_menubase_name = name,
-            -- ak_menubase_data = data
         })
     end
 }
 
+function HandleMouseControls()
+    if not MenuData.MouseEnabled or #MenuData.Opened == 0 then return end
+    
+    local mouseX, mouseY = GetNuiCursorPosition()
+    local menu = MenuData.Opened[#MenuData.Opened]
+    
+    SetMouseCursorActiveThisFrame()
+    
+    if IsControlJustPressed(0, 0x07CE1E61) then -- Left click
+        SendNUIMessage({
+            ak_menubase_action = 'controlPressed',
+            ak_menubase_control = 'ENTER'
+        })
+    end
+end
+
 function MenuData.Open(type, namespace, name, data, submit, cancel, change, close)
-    local menu                            = {}
+    local menu = {}
 
-    menu.type                             = type
-    menu.namespace                        = namespace
-    menu.name                             = name
-    menu.data                             = data
-    menu.submit                           = submit
-    menu.cancel                           = cancel
-    menu.change                           = change
-    menu.data.selected                    = MenuData.LastSelectedIndex
-        [menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
+    menu.type = type
+    menu.namespace = namespace
+    menu.name = name
+    menu.data = data
+    menu.submit = submit
+    menu.cancel = cancel
+    menu.change = change
+    menu.data.selected = MenuData.LastSelectedIndex[menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
 
-    menu.close                            = function()
+    menu.close = function()
         MenuData.RegisteredTypes[type].close(namespace, name)
         for i = 1, #MenuData.Opened, 1 do
             if MenuData.Opened[i] then
@@ -50,7 +65,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.update                           = function(query, newData)
+    menu.update = function(query, newData)
         for i = 1, #menu.data.elements, 1 do
             local match = true
 
@@ -68,12 +83,11 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.addNewElement                    = function(element)
+    menu.addNewElement = function(element)
         menu.data.elements[#menu.data.elements + 1] = element
     end
 
-    menu.removeElementByValue             = function(value, stop)
-        -- remove element from table
+    menu.removeElementByValue = function(value, stop)
         for i = 1, #menu.data.elements, 1 do
             if menu.data.elements[i] then
                 if menu.data.elements[i].value == value then
@@ -86,8 +100,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.removeElementByIndex             = function(index, stop)
-        -- remove element from table
+    menu.removeElementByIndex = function(index, stop)
         for i = 1, #menu.data.elements, 1 do
             if menu.data.elements[i] then
                 if i == index then
@@ -100,28 +113,27 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.refresh                          = function()
+    menu.refresh = function()
         MenuData.RegisteredTypes[type].open(namespace, name, menu.data)
     end
 
-    menu.setElement                       = function(i, key, val)
+    menu.setElement = function(i, key, val)
         menu.data.elements[i][key] = val
     end
-    -- override all elements
-    menu.setElements                      = function(newElements)
+
+    menu.setElements = function(newElements)
         menu.data.elements = newElements
     end
 
-    -- change the title of the current menu
-    menu.setTitle                         = function(val)
+    menu.setTitle = function(val)
         menu.data.title = val
     end
 
-    menu.getElementByIndex                = function(index)
+    menu.getElementByIndex = function(index)
         return menu.data.elements[index]
     end
 
-    menu.getElementByValue                = function(value)
+    menu.getElementByValue = function(value)
         for i = 1, #menu.data.elements, 1 do
             if menu.data.elements[i].value == value then
                 return menu.data.elements[i]
@@ -129,7 +141,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
         end
     end
 
-    menu.removeElement                    = function(query)
+    menu.removeElement = function(query)
         for i = 1, #menu.data.elements, 1 do
             for k, v in pairs(query) do
                 if menu.data.elements[i] then
@@ -201,7 +213,6 @@ RegisterNUICallback('menu_submit', function(data)
     end
 end)
 
-
 RegisterNUICallback('playsound', function()
     PlaySoundFrontend("NAV_LEFT", "PAUSE_MENU_SOUNDSET", true, 0)
 end)
@@ -232,6 +243,14 @@ RegisterNUICallback('menu_change', function(data)
     end
 end)
 
+RegisterNUICallback('mouseHover', function(data)
+    if not MenuData.MouseEnabled then return end
+    local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    if menu then
+        PlaySoundFrontend("NAV_LEFT", "PAUSE_MENU_SOUNDSET", true, 0)
+    end
+end)
+
 RegisterNUICallback('update_last_selected', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
     if not menu then return end
@@ -245,13 +264,14 @@ RegisterNUICallback('closeui', function(data)
     TriggerEvent("menuapi:closemenu")
 end)
 
-
 CreateThread(function()
     local PauseMenuState = false
-    local MenusToReOpen  = {}
+    local MenusToReOpen = {}
     while true do
         Wait(0)
         if #MenuData.Opened > 0 then
+            HandleMouseControls()
+            
             if (IsControlJustReleased(0, 0x43DBF61F) or IsDisabledControlJustReleased(0, 0x43DBF61F)) then
                 SendNUIMessage({ ak_menubase_action = 'controlPressed', ak_menubase_control = 'ENTER' })
             end
@@ -305,7 +325,6 @@ end)
 AddEventHandler("vorp_menu:getData", function(cb)
     return cb(MenuData)
 end)
-
 
 AddEventHandler('onClientResourceStart', function(resourceName)
     MenuData.LastSelectedIndex = {}
