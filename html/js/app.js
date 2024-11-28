@@ -20,15 +20,15 @@
              {{^isGrid}}
             {{#elements}}
             {{#isNotSelectable}}
-            <div class="menu-item {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
+            <div class="menu-item menu-option {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
             {{/isNotSelectable}}
                {{^isNotSelectable}}
-                <div class="menu-item {{#selected}}selected{{/selected}} {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
+                <div class="menu-item menu-option {{#selected}}selected{{/selected}} {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
                 {{/isNotSelectable}}
                     {{#image}}<img class="item-image" src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>{{/image}}
                     <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
                     <div class="arrows">
-                        {{#isSlider}}<i class="fas fa-arrow-alt-circle-left"></i>{{/isSlider}}
+                        {{#isSlider}}<i class="fas fa-arrow-circle-left"></i>{{/isSlider}}
                         <div id="slider-label">{{{sliderLabel}}}</div>
                         {{#isSlider}}<i class="fas fa-arrow-alt-circle-right"></i>{{/isSlider}}
                     </div>
@@ -47,17 +47,9 @@
         <br>
     </div>`;
 
-    /*     function scrollToElement(element, block = "nearest", inline = "nearest") {
-            element?.scrollIntoView({
-                    behavior: "smooth",
-                    block: block,
-                    inline: inline, 
-            });
-        } */
-
     function scrollToElement(element, block = "nearest") {
         if (element) {
-            const menuContainer = document.querySelector(".menu .menu-items"); // Replace with your actual menu container's class or ID
+            const menuContainer = document.querySelector(".menu .menu-items");
             const elementRect = element.getBoundingClientRect();
             const containerRect = menuContainer.getBoundingClientRect();
 
@@ -75,10 +67,51 @@
     MenuData.focus = [];
     MenuData.pos = {};
     let lastmenu;
+    let currentNamespace, currentName, menuElements;
+    let lastClickTime = 0;
+    const doubleClickDelay = 300; // 300ms untuk double click
 
+    $(document).on('click', '.menu-option', function(event) {
+        const currentTime = new Date().getTime();
+        const index = $(this).index();
+        const focused = MenuData.getFocused();
+        
+        if (focused) {
+            // Update visual selection
+            $('.menu-option').removeClass('selected');
+            $(this).addClass('selected');
+
+            // Update menu position
+            MenuData.pos[focused.namespace][focused.name] = index;
+
+            // Update elements selection state
+            const menu = MenuData.opened[focused.namespace][focused.name];
+            for (let i = 0; i < menu.elements.length; i++) {
+                menu.elements[i].selected = (i === index);
+            }
+
+            // Send menu change event
+            MenuData.change(focused.namespace, focused.name, menu.elements[index]);
+            
+            // Check if double clicked
+            if (currentTime - lastClickTime < doubleClickDelay) {
+                // Submit menu on double click
+                MenuData.submit(focused.namespace, focused.name, menu.elements[index]);
+            }
+        }
+
+        lastClickTime = currentTime;
+        
+        // Scroll to selected element
+        scrollToElement(this);
+    });
 
     MenuData.open = function (namespace, name, data) {
         lastmenu = data.lastmenu;
+        currentNamespace = namespace;
+        currentName = name;
+        menuElements = data.elements;
+
         if (typeof MenuData.opened[namespace] == "undefined") {
             MenuData.opened[namespace] = {};
         }
@@ -96,7 +129,6 @@
                 data.elements[i].type = "default";
             }
         }
-
 
         data._index = MenuData.focus.length;
         data._namespace = namespace;
