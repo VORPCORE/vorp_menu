@@ -197,7 +197,7 @@ RegisterNUICallback('menu_submit', function(data)
     PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
     if menu and menu.submit ~= nil then
-        menu.submit(data, menu)
+        menu.submit(data, menu, data.pos + 1)
     end
 end)
 

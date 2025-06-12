@@ -206,7 +206,7 @@
         $(menuContainer).show();
     };
 
-    MenuData.submit = function (namespace, name, data) {
+    MenuData.submit = function (namespace, name, data, pos) {
         if (data == "backup") {
             $.post(
                 "https://" + MenuData.ResourceName + "/menu_submit",
@@ -216,6 +216,7 @@
                     current: data,
                     trigger: lastmenu,
                     elements: MenuData.opened[namespace][name].elements,
+                    pos: pos,
                 })
             );
         } else {
@@ -226,6 +227,7 @@
                     _name: name,
                     current: data,
                     elements: MenuData.opened[namespace][name].elements,
+                    pos: pos,
                 })
             );
         }
@@ -284,7 +286,7 @@
                             let elem = menu.elements[pos];
 
                             if (menu.elements.length > 0) {
-                                MenuData.submit(focused.namespace, focused.name, elem);
+                                MenuData.submit(focused.namespace, focused.name, elem, pos);
                             }
                         }
 
@@ -297,9 +299,6 @@
                             lastmenu = "";
                         }
                         if (lastmenu != "undefined" && lastmenu != "") {
-                            let menu = MenuData.opened[focused.namespace][focused.name];
-                            let pos = MenuData.pos[focused.namespace][focused.name];
-                            let elem = menu.elements[pos];
                             MenuData.submit(focused.namespace, focused.name, "backup");
                         } else if (typeof focused != "undefined") {
                             MenuData.cancel(focused.namespace, focused.name);
@@ -426,7 +425,7 @@
                                             elem.value--;
                                         }
                                         MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem);
+                                        MenuData.submit(focused.namespace, focused.name, elem, pos);
                                     }
 
                                     MenuData.render();
@@ -463,7 +462,7 @@
                                     if (typeof elem.options != "undefined" && elem.value < elem.options.length - 1) {
                                         elem.value++;
                                         MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem);
+                                        MenuData.submit(focused.namespace, focused.name, elem, pos);
                                     }
 
                                     if (typeof elem.max != "undefined" && elem.value < elem.max) {
@@ -491,7 +490,7 @@
                                             elem.value++;
                                         }
                                         MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem);
+                                        MenuData.submit(focused.namespace, focused.name, elem, pos);
                                     }
 
                                     MenuData.render();
