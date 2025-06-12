@@ -206,7 +206,7 @@
         $(menuContainer).show();
     };
 
-    MenuData.submit = function (namespace, name, data, pos) {
+    MenuData.submit = function (namespace, name, data) {
         if (data == "backup") {
             $.post(
                 "https://" + MenuData.ResourceName + "/menu_submit",
@@ -216,7 +216,6 @@
                     current: data,
                     trigger: lastmenu,
                     elements: MenuData.opened[namespace][name].elements,
-                    pos: pos,
                 })
             );
         } else {
@@ -227,7 +226,6 @@
                     _name: name,
                     current: data,
                     elements: MenuData.opened[namespace][name].elements,
-                    pos: pos,
                 })
             );
         }
@@ -284,9 +282,10 @@
                             let menu = MenuData.opened[focused.namespace][focused.name];
                             let pos = MenuData.pos[focused.namespace][focused.name];
                             let elem = menu.elements[pos];
+                            elem.index = pos + 1;
 
                             if (menu.elements.length > 0) {
-                                MenuData.submit(focused.namespace, focused.name, elem, pos);
+                                MenuData.submit(focused.namespace, focused.name, elem);
                             }
                         }
 
@@ -398,6 +397,7 @@
                             let menu = MenuData.opened[focused.namespace][focused.name];
                             let pos = MenuData.pos[focused.namespace][focused.name];
                             let elem = menu.elements[pos];
+                            elem.index = pos + 1;
 
                             switch (elem.type) {
                                 case "default":
@@ -425,7 +425,7 @@
                                             elem.value--;
                                         }
                                         MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem, pos);
+                                        MenuData.submit(focused.namespace, focused.name, elem);
                                     }
 
                                     MenuData.render();
@@ -453,6 +453,7 @@
                             let menu = MenuData.opened[focused.namespace][focused.name];
                             let pos = MenuData.pos[focused.namespace][focused.name];
                             let elem = menu.elements[pos];
+                            elem.index = pos + 1;
 
                             switch (elem.type) {
                                 case "default":
@@ -462,7 +463,7 @@
                                     if (typeof elem.options != "undefined" && elem.value < elem.options.length - 1) {
                                         elem.value++;
                                         MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem, pos);
+                                        MenuData.submit(focused.namespace, focused.name, elem);
                                     }
 
                                     if (typeof elem.max != "undefined" && elem.value < elem.max) {
