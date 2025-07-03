@@ -124,7 +124,7 @@ function MenuData.Open(type, namespace, name, data, submit, cancel, change, clos
     menu.getElementByValue                = function(value)
         for i = 1, #menu.data.elements, 1 do
             if menu.data.elements[i].value == value then
-                return menu.data.elements[i]
+                return menu.data.elements[i], i
             end
         end
     end
