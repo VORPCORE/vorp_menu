@@ -1,5 +1,6 @@
 <1.1>
-- getElementByValue now returns the element and the index of the element
+- added to the data, the index value of the elements data.current.index for easy access 
+- getElementByValue now returns 2 values, value and index of the menu elements
 <1.0>
 - added last selected tracker tab
 - added new defined variables to build menus with grids
