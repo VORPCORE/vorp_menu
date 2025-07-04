@@ -1,63 +1,68 @@
 (function () {
-    let MenuTpl = `
-    <div id="menu_{{_namespace}}_{{_name}}" class="menu{{#align}} align-{{align}}{{/align}}">
-        <div class="head"><span>{{{title}}}</span></div>
-        <div class="desciptions">{{{subtext}}}</div>
-        <div class="topline"></div>
-        <div class="menu-items">
-            {{#isGrid}}
-            <div class="grid-container">
-            {{#elements}}
-            <div class="grid-item {{#selected}}selected{{/selected}}">
-                {{#image}}<img src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>{{/image}}
-                {{^image}}
-                <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
-                {{/image}}
+    const MenuTpl = `
+        <div id="menu_{{_namespace}}_{{_name}}" class="menu{{#align}} align-{{align}}{{/align}}">
+            <div class="head">
+                <span>{{{title}}}</span>
             </div>
-            {{/elements}}
-            </div>
-             {{/isGrid}}
-             {{^isGrid}}
-            {{#elements}}
-            {{#isNotSelectable}}
-            <div class="menu-item {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
-            {{/isNotSelectable}}
-               {{^isNotSelectable}}
-                <div class="menu-item {{#selected}}selected{{/selected}} {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
-                {{/isNotSelectable}}
-                    {{#image}}<img class="item-image" src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>{{/image}}
-                    <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
-                    <div class="arrows">
-                        {{#isSlider}}<i class="fas fa-arrow-alt-circle-left"></i>{{/isSlider}}
-                        <div id="slider-label">{{{sliderLabel}}}</div>
-                        {{#isSlider}}<i class="fas fa-arrow-alt-circle-right"></i>{{/isSlider}}
+            <div class="desciptions">{{{subtext}}}</div>
+            <div class="topline"></div>
+            <div class="menu-items">
+                {{#isGrid}}
+                    <div class="grid-container">
+                        {{#elements}}
+                            <div class="grid-item {{#selected}}selected{{/selected}}">
+                                {{#image}}
+                                    <img src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>
+                                {{/image}}
+                                {{^image}}
+                                    <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
+                                {{/image}}
+                            </div>
+                        {{/elements}}
                     </div>
-                </div>
+                {{/isGrid}}
+                {{^isGrid}}
+                    {{#elements}}
+                        {{#isNotSelectable}}
+                            <div class="menu-item {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
+                        {{/isNotSelectable}}
+                        {{^isNotSelectable}}
+                            <div class="menu-item {{#selected}}selected{{/selected}} {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
+                        {{/isNotSelectable}}
+                            {{#image}}
+                                <img class="item-image" src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>
+                            {{/image}}
+                            <div id="item-label" {{#image}}class="image-pad"{{/image}}>{{{label}}}</div>
+                            <div class="arrows">
+                                {{#isSlider}}
+                                    <i class="fas fa-arrow-alt-circle-left"></i>
+                                {{/isSlider}}
+                                <div id="slider-label">{{{sliderLabel}}}</div>
+                                {{#isSlider}}
+                                    <i class="fas fa-arrow-alt-circle-right"></i>
+                                {{/isSlider}}
+                            </div>
+                        </div>
+                    {{/elements}}
+                {{/isGrid}}
+            </div>
+            <div class="scrollbottom"></div>
+            {{#elements}}
+                {{#selected}}
+                    <div class="options-amount">{{{list_id}}}/{{{list_max}}}</div>
+                    <br>
+                    <div class="desciption">{{{desc}}}</div>
+                {{/selected}}
             {{/elements}}
-          {{/isGrid}}
-        </div>
-        <div class="scrollbottom"></div>
-        {{#elements}}
-            {{#selected}}
-                <div class="options-amount">{{{list_id}}}/{{{list_max}}}</div>
-                <br>
-                <div class="desciption">{{{desc}}}</div>
-            {{/selected}}
-        {{/elements}}
-        <br>
-    </div>`;
+            <br>
+        </div>`;
 
-    /*     function scrollToElement(element, block = "nearest", inline = "nearest") {
-            element?.scrollIntoView({
-                    behavior: "smooth",
-                    block: block,
-                    inline: inline, 
-            });
-        } */
 
-    function scrollToElement(element, block = "nearest") {
-        if (element) {
-            const menuContainer = document.querySelector(".menu .menu-items"); // Replace with your actual menu container's class or ID
+    function scrollToElement(element) {
+        if (!element)  
+            return;
+
+            const menuContainer = document.querySelector(".menu .menu-items");
             const elementRect = element.getBoundingClientRect();
             const containerRect = menuContainer.getBoundingClientRect();
 
@@ -66,7 +71,7 @@
             } else if (elementRect.top < containerRect.top) {
                 menuContainer.scrollTop -= containerRect.top - elementRect.top;
             }
-        }
+        
     }
 
     window.MenuData = {};
@@ -128,6 +133,7 @@
         });
 
         MenuData.render();
+
         let selectedElement = $("#menu_" + namespace + "_" + name).find(".menu-item.selected, .grid-item.selected");
         if (selectedElement.length > 0) {
             scrollToElement(selectedElement[0]);
@@ -138,10 +144,7 @@
         delete MenuData.opened[namespace][name];
 
         for (let i = 0; i < MenuData.focus.length; i++) {
-            if (
-                MenuData.focus[i].namespace == namespace &&
-                MenuData.focus[i].name == name
-            ) {
+            if ( MenuData.focus[i].namespace == namespace &&  MenuData.focus[i].name == name ) {
                 MenuData.focus.splice(i, 1);
                 break;
             }
@@ -201,7 +204,7 @@
 
         if (typeof focused != "undefined") {
             $("#menu_" + focused.namespace + "_" + focused.name).show();
-            
+
             const focusedMenuData = MenuData.opened[focused.namespace][focused.name];
             if (focusedMenuData) {
                 const specificMenu = document.querySelector(`#menu_${focused.namespace}_${focused.name}`);
@@ -224,8 +227,7 @@
 
     MenuData.submit = function (namespace, name, data) {
         if (data == "backup") {
-            $.post(
-                "https://" + MenuData.ResourceName + "/menu_submit",
+            $.post(  "https://" + MenuData.ResourceName + "/menu_submit",
                 JSON.stringify({
                     _namespace: namespace,
                     _name: name,
@@ -235,8 +237,7 @@
                 })
             );
         } else {
-            $.post(
-                "https://" + MenuData.ResourceName + "/menu_submit",
+            $.post(  "https://" + MenuData.ResourceName + "/menu_submit",
                 JSON.stringify({
                     _namespace: namespace,
                     _name: name,
@@ -248,8 +249,7 @@
     };
 
     MenuData.cancel = function (namespace, name) {
-        $.post(
-            "https://" + MenuData.ResourceName + "/menu_cancel",
+        $.post(   "https://" + MenuData.ResourceName + "/menu_cancel",
             JSON.stringify({
                 _namespace: namespace,
                 _name: name,
@@ -258,8 +258,7 @@
     };
 
     MenuData.change = function (namespace, name, data) {
-        $.post(
-            "https://" + MenuData.ResourceName + "/menu_change",
+        $.post(  "https://" + MenuData.ResourceName + "/menu_change",
             JSON.stringify({
                 _namespace: namespace,
                 _name: name,
@@ -299,7 +298,6 @@
                             let pos = MenuData.pos[focused.namespace][focused.name];
                             let elem = menu.elements[pos];
                             elem.index = pos + 1;
-
                             if (menu.elements.length > 0) {
                                 MenuData.submit(focused.namespace, focused.name, elem);
                             }
@@ -332,10 +330,29 @@
                             let menu = MenuData.opened[focused.namespace][focused.name];
                             let pos = MenuData.pos[focused.namespace][focused.name];
 
-                            if (pos > 0) {
-                                MenuData.pos[focused.namespace][focused.name]--;
+                            if (menu.isGrid) {
+
+                                let newPos = pos - 4;
+                                if (newPos < 0) {
+
+                                    let column = pos % 4;
+                                    let totalRows = Math.ceil(menu.elements.length / 4);
+                                    let lastRowStart = (totalRows - 1) * 4;
+                                    newPos = lastRowStart + column;
+
+
+                                    if (newPos >= menu.elements.length) {
+                                        newPos = menu.elements.length - 1;
+                                    }
+                                }
+                                MenuData.pos[focused.namespace][focused.name] = newPos;
                             } else {
-                                MenuData.pos[focused.namespace][focused.name] = menu.elements.length - 1;
+
+                                if (pos > 0) {
+                                    MenuData.pos[focused.namespace][focused.name]--;
+                                } else {
+                                    MenuData.pos[focused.namespace][focused.name] = menu.elements.length - 1;
+                                }
                             }
 
                             let elem = menu.elements[MenuData.pos[focused.namespace][focused.name]];
@@ -343,7 +360,6 @@
                             for (let i = 0; i < menu.elements.length; i++) {
                                 menu.elements[i].selected = (i == MenuData.pos[focused.namespace][focused.name]);
                             }
-
 
                             $.post('https://' + MenuData.ResourceName + '/update_last_selected', JSON.stringify({
                                 _namespace: focused.namespace,
@@ -371,10 +387,20 @@
                             let pos = MenuData.pos[focused.namespace][focused.name];
                             let length = menu.elements.length;
 
-                            if (pos < length - 1) {
-                                MenuData.pos[focused.namespace][focused.name]++;
+                            if (menu.isGrid) {
+                                let newPos = pos + 4;
+                                if (newPos >= length) {
+                                    let column = pos % 4;
+                                    newPos = column;
+                                }
+                                MenuData.pos[focused.namespace][focused.name] = newPos;
                             } else {
-                                MenuData.pos[focused.namespace][focused.name] = 0;
+
+                                if (pos < length - 1) {
+                                    MenuData.pos[focused.namespace][focused.name]++;
+                                } else {
+                                    MenuData.pos[focused.namespace][focused.name] = 0;
+                                }
                             }
 
                             let elem = menu.elements[MenuData.pos[focused.namespace][focused.name]];
@@ -412,49 +438,87 @@
                         if (typeof focused != "undefined") {
                             let menu = MenuData.opened[focused.namespace][focused.name];
                             let pos = MenuData.pos[focused.namespace][focused.name];
-                            let elem = menu.elements[pos];
-                            elem.index = pos + 1;
 
-                            switch (elem.type) {
-                                case "default":
-                                    break;
-
-                                case "slider": {
-                                    let min = typeof elem.min == "undefined" ? 0 : elem.min;
-
-                                    if (elem.value > min) {
-                                        if (typeof elem.hop != "undefined") {
-                                            if (Number.isInteger(elem.hop)) {
-                                                elem.value = elem.value - elem.hop;
-                                            } else {
-                                                elem.value = (
-                                                    Number(elem.value) - Number(elem.hop)
-                                                ).toFixed(1);
-                                            }
-
-                                            elem.value = Number(elem.value);
-
-                                            if (elem.value < min) {
-                                                elem.value = min;
-                                            }
+                            if (menu.isGrid) {
+                                let newPos = pos - 1;
+                                if (newPos < 0 || pos % 4 === 0) {
+                                    if (pos % 4 === 0) {
+                                        if (pos === 0) {
+                                            newPos = menu.elements.length - 1;
                                         } else {
-                                            elem.value--;
-                                        }
-                                        MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem);
-                                    }
 
-                                    MenuData.render();
-                                    break;
+                                            newPos = pos - 1;
+                                        }
+                                    } else {
+                                        newPos = menu.elements.length - 1;
+                                    }
+                                }
+                                MenuData.pos[focused.namespace][focused.name] = newPos;
+
+                                let elem = menu.elements[MenuData.pos[focused.namespace][focused.name]];
+                                for (let i = 0; i < menu.elements.length; i++) {
+                                    menu.elements[i].selected = (i == MenuData.pos[focused.namespace][focused.name]);
                                 }
 
-                                default:
-                                    break;
-                            }
+                                $.post('https://' + MenuData.ResourceName + '/update_last_selected', JSON.stringify({
+                                    _namespace: focused.namespace,
+                                    _name: focused.name,
+                                    selected: MenuData.pos[focused.namespace][focused.name]
+                                }));
 
-                            let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
-                            if (selectedElement.length > 0) {
-                                scrollToElement(selectedElement[0]);
+                                MenuData.change(focused.namespace, focused.name, elem);
+                                MenuData.render();
+                                $.post("https://" + MenuData.ResourceName + "/playsound");
+                                let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
+                                if (selectedElement.length > 0) {
+                                    scrollToElement(selectedElement[0]);
+                                }
+                            } else {
+
+                                let elem = menu.elements[pos];
+                                elem.index = pos + 1;
+
+                                switch (elem.type) {
+                                    case "default":
+                                        break;
+
+                                    case "slider": {
+                                        let min = typeof elem.min == "undefined" ? 0 : elem.min;
+
+                                        if (elem.value > min) {
+                                            if (typeof elem.hop != "undefined") {
+                                                if (Number.isInteger(elem.hop)) {
+                                                    elem.value = elem.value - elem.hop;
+                                                } else {
+                                                    elem.value = (
+                                                        Number(elem.value) - Number(elem.hop)
+                                                    ).toFixed(1);
+                                                }
+
+                                                elem.value = Number(elem.value);
+
+                                                if (elem.value < min) {
+                                                    elem.value = min;
+                                                }
+                                            } else {
+                                                elem.value--;
+                                            }
+                                            MenuData.change(focused.namespace, focused.name, elem);
+                                            MenuData.submit(focused.namespace, focused.name, elem);
+                                        }
+
+                                        MenuData.render();
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+
+                                let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
+                                if (selectedElement.length > 0) {
+                                    scrollToElement(selectedElement[0]);
+                                }
                             }
                         }
 
@@ -468,59 +532,94 @@
                         if (typeof focused != "undefined") {
                             let menu = MenuData.opened[focused.namespace][focused.name];
                             let pos = MenuData.pos[focused.namespace][focused.name];
-                            let elem = menu.elements[pos];
-                            elem.index = pos + 1;
 
-                            switch (elem.type) {
-                                case "default":
-                                    break;
-
-                                case "slider": {
-                                    if (typeof elem.options != "undefined" && elem.value < elem.options.length - 1) {
-                                        elem.value++;
-                                        MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem);
-                                    }
-
-                                    if (typeof elem.max != "undefined" && elem.value < elem.max) {
-                                        if (typeof elem.hop != "undefined") {
-                                            let min = typeof elem.min == "undefined" ? 0 : elem.min;
-
-                                            if (min > 0 && min == elem.value) {
-                                                elem.value = 0;
-                                            }
-
-                                            if (Number.isInteger(elem.hop)) {
-                                                elem.value = elem.value + elem.hop;
-                                            } else {
-                                                elem.value = (
-                                                    Number(elem.value) + Number(elem.hop)
-                                                ).toFixed(1);
-                                            }
-
-                                            elem.value = Number(elem.value);
-
-                                            if (elem.value > elem.max) {
-                                                elem.value = elem.max;
-                                            }
-                                        } else {
-                                            elem.value++;
+                            if (menu.isGrid) {
+                                let newPos = pos + 1;
+                                if (newPos >= menu.elements.length || (pos + 1) % 4 === 0) {
+                                    if ((pos + 1) % 4 === 0) {
+                                        if (newPos >= menu.elements.length) {
+                                            newPos = 0;
                                         }
-                                        MenuData.change(focused.namespace, focused.name, elem);
-                                        MenuData.submit(focused.namespace, focused.name, elem, pos);
+                                    } else {
+                                        newPos = 0;
                                     }
+                                }
+                                MenuData.pos[focused.namespace][focused.name] = newPos;
 
-                                    MenuData.render();
-                                    break;
+                                let elem = menu.elements[MenuData.pos[focused.namespace][focused.name]];
+                                for (let i = 0; i < menu.elements.length; i++) {
+                                    menu.elements[i].selected = (i == MenuData.pos[focused.namespace][focused.name]);
                                 }
 
-                                default:
-                                    break;
-                            }
+                                $.post('https://' + MenuData.ResourceName + '/update_last_selected', JSON.stringify({
+                                    _namespace: focused.namespace,
+                                    _name: focused.name,
+                                    selected: MenuData.pos[focused.namespace][focused.name]
+                                }));
 
-                            let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
-                            if (selectedElement.length > 0) {
-                                scrollToElement(selectedElement[0]);
+                                MenuData.change(focused.namespace, focused.name, elem);
+                                MenuData.render();
+                                $.post("https://" + MenuData.ResourceName + "/playsound");
+                                let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
+                                if (selectedElement.length > 0) {
+                                    scrollToElement(selectedElement[0]);
+                                }
+                            } else {
+
+                                let elem = menu.elements[pos];
+                                elem.index = pos + 1;
+
+                                switch (elem.type) {
+                                    case "default":
+                                        break;
+
+                                    case "slider": {
+                                        if (typeof elem.options != "undefined" && elem.value < elem.options.length - 1) {
+                                            elem.value++;
+                                            MenuData.change(focused.namespace, focused.name, elem);
+                                            MenuData.submit(focused.namespace, focused.name, elem);
+                                        }
+
+                                        if (typeof elem.max != "undefined" && elem.value < elem.max) {
+                                            if (typeof elem.hop != "undefined") {
+                                                let min = typeof elem.min == "undefined" ? 0 : elem.min;
+
+                                                if (min > 0 && min == elem.value) {
+                                                    elem.value = 0;
+                                                }
+
+                                                if (Number.isInteger(elem.hop)) {
+                                                    elem.value = elem.value + elem.hop;
+                                                } else {
+                                                    elem.value = (
+                                                        Number(elem.value) + Number(elem.hop)
+                                                    ).toFixed(1);
+                                                }
+
+                                                elem.value = Number(elem.value);
+
+                                                if (elem.value > elem.max) {
+                                                    elem.value = elem.max;
+                                                }
+                                            } else {
+                                                elem.value++;
+                                            }
+                                            MenuData.change(focused.namespace, focused.name, elem);
+                                            MenuData.submit(focused.namespace, focused.name, elem);
+                                        }
+
+                                        MenuData.render();
+                                        break;
+                                    }
+
+                                    default:
+                                        break;
+                                }
+
+                                let selectedElement = $("#menu_" + focused.namespace + "_" + focused.name).find(".menu-item.selected, .grid-item.selected");
+                                if (selectedElement.length > 0) {
+                                    scrollToElement(selectedElement[0]);
+                                }
                             }
                         }
 
@@ -536,7 +635,7 @@
         }
     };
 
-    window.onload = function (e) {
+    window.onload = function () {
         window.addEventListener("message", (event) => {
             onData(event.data);
         });
