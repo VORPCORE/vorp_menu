@@ -201,6 +201,22 @@
 
         if (typeof focused != "undefined") {
             $("#menu_" + focused.namespace + "_" + focused.name).show();
+            
+            const focusedMenuData = MenuData.opened[focused.namespace][focused.name];
+            if (focusedMenuData) {
+                const specificMenu = document.querySelector(`#menu_${focused.namespace}_${focused.name}`);
+                if (focusedMenuData.fixedHeight) {
+
+                    if (specificMenu) {
+                        specificMenu.style.height = "85vh";
+                    }
+                } else {
+
+                    if (specificMenu) {
+                        specificMenu.style.height = "auto";
+                    }
+                }
+            }
         }
 
         $(menuContainer).show();
