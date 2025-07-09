@@ -13,7 +13,9 @@ RedM menu API
 
 ## Images
 
-<img width="310" alt="image" src="https://user-images.githubusercontent.com/87246847/177007395-6230bbb6-22cc-459d-8b7b-aa8eced04050.png">
+![image](https://github.com/user-attachments/assets/70c83c6d-69b3-4c1c-ad3f-4d325b30db34)
+![image](https://github.com/user-attachments/assets/4aa44c68-b1d5-4b6c-aa0a-44bcf0f3d50c)
+
 
 
 # Credits
