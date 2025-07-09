@@ -777,10 +777,10 @@ i {
 
 
 .desc-price-container {
-	margin-top: 16vh;
+	position: absolute;
+	bottom: 5vh;
 	width: 21vw;
-	left: 50%;
-	transform: translateX(1%);
+	left: 2.5vw;
 	justify-content: center;
 	align-items: center;
 }
