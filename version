@@ -1,3 +1,27 @@
+<1.2>
+- cursor enable disable per menu /page
+- scroll down key press/mouse
+- element select only with cursor on
+- max visible Items per menu
+- label position of each element or all.
+- fixed Height for background image
+- multiple sliders for description
+- slider for label elements
+- confirm cancel buttons / can be label or do what ever you want them to do
+- fixes the container height with elements with different heights
+- grid now works with also key press correctly or with cursor
+- input built in no need for vorp-inputs
+- press right mouse click to go back  or backspace key
+- press enter to select or left mouse click.
+- hide show radar
+- open and close sound with params
+- added price system for the ui like RDO
+- multiple tick boxes in the description
+- label tick boxes
+- fully backwards compatible
+- footer text
+- divider enable/disable
+- fixes resolution for 4k and up
 <1.1>
 - added to the data, the index value of the elements data.current.index for easy access 
 - getElementByValue now returns 2 values, value and index of the menu elements
