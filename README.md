@@ -17,6 +17,10 @@ RedM menu API
 ![image](https://github.com/user-attachments/assets/4aa44c68-b1d5-4b6c-aa0a-44bcf0f3d50c)
 
 
+## video
+https://github.com/user-attachments/assets/01808aae-41e9-42ab-87f6-a003a5bfe921
+
+
 
 # Credits
 * @SLIZZARN
