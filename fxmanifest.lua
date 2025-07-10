@@ -5,6 +5,7 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 author 'VORP edit by @outsider' --  SLIZZARN original author
 description 'A tool to build RedM menus for your scripts'
 repository 'https://github.com/VORPCORE/vorp_menu'
+lua54 'yes'
 
 client_scripts {
 	'client/main.lua'

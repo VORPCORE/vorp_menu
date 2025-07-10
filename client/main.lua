@@ -355,7 +355,7 @@ end)
 
 RegisterNUICallback('closeui', function(data)
     TriggerEvent("menuapi:closemenu")
-    TriggerEvent("vorp_menu:closemenu") -- new event
+    TriggerEvent("vorp_menu:closemenu",data) -- new event
 end)
 
 RegisterNUICallback('setCursor', function(data, cb)

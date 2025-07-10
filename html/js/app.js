@@ -252,7 +252,7 @@
                 </div>
             </div>
         </div>`;
-        
+
     window.isInputOpen = false;
     window.MenuData = {};
     const MenuData = window.MenuData; // just for linter
@@ -284,7 +284,6 @@
         let dragElement = null;
         let isDescDragging = false;
         let isMultiSliderDragging = false;
-        let lastSelectedIndex = MenuData.pos[namespace][name] || 0;
 
         $(menuElement).find('.menu-item, .grid-item, .slider-left, .slider-right, .menu-confirm-btn, .menu-cancel-btn, .label-slider-track, .label-slider-thumb, .description-slider-track, .description-slider-thumb, .description-slider-container, .tickbox-item').off();
 
@@ -301,12 +300,8 @@
                     elem.index = index + 1;
 
                     if (elem.tickBox) {
-                        if (elem.value === "ticked") {
-                            elem.value = "unticked";
-                        } else {
-                            elem.value = "ticked";
-                        }
 
+                        elem.value = elem.value == "ticked" ? "unticked" : "ticked";
                         const menuContainer = $(menuElement).find('.menu-items')[0];
                         const savedScrollTop = menuContainer.scrollTop;
 
@@ -610,11 +605,7 @@
             if (elem && elem.type === 'tick-box' && elem.tickBoxes && elem.tickBoxes[tickboxIndex]) {
 
                 const tickBox = elem.tickBoxes[tickboxIndex];
-                if (tickBox.value === "ticked") {
-                    tickBox.value = "unticked";
-                } else {
-                    tickBox.value = "ticked";
-                }
+                tickBox.value = tickBox.value === "ticked" ? "unticked" : "ticked";
 
                 const menuContainer = $(menuElement).find('.menu-items')[0];
                 const savedScrollTop = menuContainer.scrollTop;
@@ -1734,11 +1725,8 @@
 
 
                             if (elem.tickBox) {
-                                if (elem.value === "ticked") {
-                                    elem.value = "unticked";
-                                } else {
-                                    elem.value = "ticked";
-                                }
+
+                                elem.value = elem.value === "ticked" ? "unticked" : "ticked";
                                 const menuContainer = document.querySelector(".menu .menu-items");
                                 const savedScrollTop = menuContainer ? menuContainer.scrollTop : 0;
 
@@ -1769,7 +1757,7 @@
                         } else if (typeof focused != "undefined") {
                             MenuData.cancel(focused.namespace, focused.name);
                             $.post("https://" + MenuData.ResourceName + "/closeui",
-                                JSON.stringify({})
+                                JSON.stringify({namespace: focused.namespace, name: focused.name})
                             );
                         }
                         break;
