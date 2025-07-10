@@ -952,18 +952,32 @@ i {
 		min-height: 2.5vh;
 		font-size: 16px;
 	}
-	
+
 	.grid-item {
 		width: 72px;
 		height: 72px;
 		padding: 10px;
 		margin-top: 5px;
-		margin-left: 12px;
+		margin-left: 12px; 
 	}
 
 	.grid-container {
 		grid-template-columns: repeat(4, 71px);
 		grid-gap: 0px 22px;
+	}
+
+	.multiple-tickbox-container .tickbox-box {
+		width: 30px;
+		height: 30px;
+	}
+
+	.multiple-tickbox-container .tickbox-tick {
+		width: 40px;
+		height: 40px;
+	}
+
+	.multiple-tickbox-container .tickbox-item {
+		margin-bottom: -5px;
 	}
 
 }
