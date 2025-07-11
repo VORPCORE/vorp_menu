@@ -261,6 +261,7 @@
     MenuData.focus = [];
     MenuData.pos = {};
     let lastmenu;
+    let SavedScrollTop = 0;
 
     function scrollToElement(element) {
         if (element) {
@@ -297,25 +298,21 @@
 
                 if (index === currentSelected) {
                     let elem = menuData.elements[index];
-                    elem.index = index + 1;
+                    
 
                     if (elem.tickBox) {
+                        document.body.style.pointerEvents = 'none';
+                        onData({
+                            ak_menubase_action: 'controlPressed',
+                            ak_menubase_control: 'ENTER'
+                        });
 
-                        elem.value = elem.value == "ticked" ? "unticked" : "ticked";
-                        const menuContainer = $(menuElement).find('.menu-items')[0];
-                        const savedScrollTop = menuContainer.scrollTop;
-
-                        MenuData.submit(namespace, name, elem);
-                        MenuData.render();
-
-                        const newMenuContainer = document.querySelector(".menu .menu-items");
-                        if (newMenuContainer) {
-                            newMenuContainer.scrollTop = savedScrollTop;
-                        }
-                        $.post("https://" + MenuData.ResourceName + "/playsound");
+                        setTimeout(() => {
+                            document.body.style.pointerEvents = '';
+                        }, 100);
                         return;
                     }
-
+                    elem.index = index + 1;
                     MenuData.submit(namespace, name, elem);
                 } else {
 
@@ -334,13 +331,13 @@
                     MenuData.change(namespace, name, menuData.elements[index]);
 
                     const menuContainer = $(menuElement).find('.menu-items')[0];
-                    const savedScrollTop = menuContainer.scrollTop;
+                    SavedScrollTop = menuContainer.scrollTop;
 
                     MenuData.render();
 
                     const newMenuContainer = document.querySelector(".menu .menu-items");
                     if (newMenuContainer) {
-                        newMenuContainer.scrollTop = savedScrollTop;
+                        newMenuContainer.scrollTop = SavedScrollTop;
                     }
 
                     $.post("https://" + MenuData.ResourceName + "/playsound");
@@ -1037,16 +1034,25 @@
 
         MenuData.render();
 
-        let selectedElement = $("#menu_" + namespace + "_" + name).find(".menu-item.selected, .grid-item.selected");
+        if (SavedScrollTop > 0) { // refresh the menu this gets called so we gotta scroll to where we were
+            requestAnimationFrame(() => {
+                const menuItems = document.querySelector('.menu .menu-items');
+                if (menuItems) {
+                    menuItems.scrollTop = SavedScrollTop;
+                    SavedScrollTop = 0;
+                }
+            });
+        }
+
+        const selectedElement = $("#menu_" + namespace + "_" + name).find(".menu-item.selected, .grid-item.selected");
         if (selectedElement.length > 0) {
             scrollToElement(selectedElement[0]);
         }
 
-        let cursorEnabled = data.enableCursor;
-
         $.post("https://" + MenuData.ResourceName + "/setCursor", JSON.stringify({
-            enabled: cursorEnabled
+            enabled: data.enableCursor
         }));
+
     };
 
     MenuData.close = function (namespace, name) {
@@ -1728,13 +1734,13 @@
 
                                 elem.value = elem.value === "ticked" ? "unticked" : "ticked";
                                 const menuContainer = document.querySelector(".menu .menu-items");
-                                const savedScrollTop = menuContainer ? menuContainer.scrollTop : 0;
+                                 SavedScrollTop = menuContainer ? menuContainer.scrollTop : 0;
 
                                 MenuData.submit(focused.namespace, focused.name, elem);
                                 MenuData.render();
                                 const newMenuContainer = document.querySelector(".menu .menu-items");
                                 if (newMenuContainer) {
-                                    newMenuContainer.scrollTop = savedScrollTop;
+                                    newMenuContainer.scrollTop = SavedScrollTop;
                                 }
                                 break;
                             }
