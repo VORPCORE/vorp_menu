@@ -243,7 +243,12 @@
                     <div class="input-description">{{{description}}}</div>
                     {{/description}}
                     {{^isConfirmation}}
+                    {{#isTextarea}}
+                    <textarea class="input-field" placeholder="{{{placeholder}}}" {{#maxLength}}maxlength="{{{maxLength}}}"{{/maxLength}}></textarea>
+                    {{/isTextarea}}
+                    {{^isTextarea}}
                     <input type="{{{inputType}}}" class="input-field" placeholder="{{{placeholder}}}" {{#maxLength}}maxlength="{{{maxLength}}}"{{/maxLength}} />
+                    {{/isTextarea}}
                     {{/isConfirmation}}
                     <div class="input-buttons">
                         <button class="input-submit">{{{confirmLabel}}}</button>
@@ -1500,6 +1505,9 @@
             cancelLabel: ''
         };
 
+        if (inputConfig.inputType === 'textarea')
+            inputData.isTextarea = true;
+
         if (inputConfig.buttons) {
             inputData.confirmLabel = inputConfig.buttons?.confirm || 'Confirm';
             inputData.cancelLabel = inputConfig.buttons?.cancel || 'Cancel';
@@ -1666,11 +1674,14 @@
             const inputField = inputElement.querySelector('.input-field');
             inputField.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const value = inputField.value;
-                    closeInput();
-                    sendResult(value, false);
-                    document.removeEventListener('keydown', handleEscKey);
+
+                    if (!inputData.isTextarea) {
+                        e.preventDefault();
+                        const value = inputField.value;
+                        closeInput();
+                        sendResult(value, false);
+                        document.removeEventListener('keydown', handleEscKey);
+                    }
                 }
             });
         } else {
@@ -1681,6 +1692,7 @@
                     closeInput();
                     sendResult(true, false);
                     document.removeEventListener('keydown', handleEscKey);
+                    
                 }
             });
         }
