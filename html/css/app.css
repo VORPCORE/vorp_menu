@@ -127,6 +127,10 @@
 	background-size: 100% 100%;
 }
 
+.menu .menu-items .menu-item.disabled {
+	opacity: 0.6;
+}
+
 .menu .menu-items .menu-item.selected {
 	background-image: url(selsected.png), url(selection_box_bg_1d.png);
 }

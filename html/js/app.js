@@ -25,10 +25,10 @@
                 {{^isGrid}}
                     {{#elements}}
                         {{#isNotSelectable}}
-                            <div class="menu-item {{#isSlider}}slider{{/isSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
+                            <div class="menu-item {{#isSlider}}slider{{/isSlider}} {{#isDisabled}}disabled{{/isDisabled}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
                         {{/isNotSelectable}}
                         {{^isNotSelectable}}
-                            <div class="menu-item {{#selected}}selected{{/selected}} {{#isSlider}}slider{{/isSlider}} {{#isLabelSlider}}label-slider{{/isLabelSlider}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
+                            <div class="menu-item {{#selected}}selected{{/selected}} {{#isSlider}}slider{{/isSlider}} {{#isLabelSlider}}label-slider{{/isLabelSlider}} {{#isDisabled}}disabled{{/isDisabled}}" {{#itemHeight}} style="height:{{{itemHeight}}}!important"{{/itemHeight}}>
                         {{/isNotSelectable}}
                             {{#image}}
                                 <img class="item-image" src="nui://vorp_inventory/html/img/items/{{{image}}}.png"></img>
@@ -303,7 +303,8 @@
 
                 if (index === currentSelected) {
                     let elem = menuData.elements[index];
-                    
+
+                    if (elem.isDisabled) return;
 
                     if (elem.tickBox) {
                         document.body.style.pointerEvents = 'none';
@@ -1741,6 +1742,7 @@
                             let elem = menu.elements[pos];
                             elem.index = pos + 1;
 
+                            if (elem.isDisabled) return;
 
                             if (elem.tickBox) {
 
@@ -1939,6 +1941,8 @@
                                 let elem = menu.elements[pos];
                                 elem.index = pos + 1;
 
+                                if (elem.isDisabled) return;
+
                                 switch (elem.type) {
                                     case "default":
                                         break;
@@ -2116,6 +2120,8 @@
 
                                 let elem = menu.elements[pos];
                                 elem.index = pos + 1;
+
+                                if (elem.isDisabled) return;
 
                                 switch (elem.type) {
                                     case "default":
