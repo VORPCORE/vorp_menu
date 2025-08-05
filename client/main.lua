@@ -128,6 +128,10 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
         menu.data.title = val
     end
 
+    menu.setSubtext             = function(val)
+        menu.data.subtext = val
+    end
+
     menu.displayInput         = function(inputConfig, onSubmit, onCancel)
         Wait(500)
         if MenuData.InputCallbacks then
