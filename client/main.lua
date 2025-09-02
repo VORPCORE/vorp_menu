@@ -251,6 +251,7 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
     else
         PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     end
+    TriggerEvent("vorp_menu:openmenu",name)
     return menu
 end
 
