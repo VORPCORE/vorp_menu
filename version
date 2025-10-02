@@ -1,3 +1,9 @@
+<1.3>
+- added new event to detect open menu vorp_menu:openmenu
+- added new function to update subTitle
+- added "isDisabled" property for changing opacity of an element 
+- added support for input textArea
+- small fixes from the last updates  
 <1.2>
 - cursor enable disable per menu /page
 - scroll down key press/mouse
