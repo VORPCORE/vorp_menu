@@ -18,7 +18,7 @@ MenuData.RegisteredTypes['default'] = {
             ak_menubase_action = 'closeMenu',
             ak_menubase_namespace = namespace,
             ak_menubase_name = name,
-          -- ak_menubase_data = data
+            -- ak_menubase_data = data
         })
     end
 }
@@ -36,7 +36,7 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
     menu.change        = change
     menu.data.selected = MenuData.LastSelectedIndex[menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
 
-    menu.close         = function(showRadar, closeSound)
+    menu.close         = function(showRadar, closeSound, trigeerCloseEvent)
         MenuData.RegisteredTypes[menuType].close(namespace, name)
 
         for i = 1, #MenuData.Opened, 1 do
@@ -53,6 +53,10 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
 
         if closeSound then
             PlaySoundFrontend("MENU_CLOSE", "HUD_PLAYER_MENU", true, 0)
+        end
+
+        if trigeerCloseEvent then
+            TriggerEvent("vorp_menu:closemenu")
         end
 
         if close then
@@ -128,7 +132,7 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
         menu.data.title = val
     end
 
-    menu.setSubtext             = function(val)
+    menu.setSubtext           = function(val)
         menu.data.subtext = val
     end
 
@@ -251,35 +255,30 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
     else
         PlaySoundFrontend("SELECT", "RDRO_Character_Creator_Sounds", true, 0)
     end
-    TriggerEvent("vorp_menu:openmenu",name)
+
+    if not data.skipOpenEvent then
+        TriggerEvent("vorp_menu:openmenu")
+    end
     return menu
 end
 
-function MenuData.Close(type, namespace, name)
+function MenuData.Close(type, namespace, name, showRadar, closeSound, trigeerCloseEvent)
     for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
             if MenuData.Opened[i].type == type and MenuData.Opened[i].namespace == namespace and MenuData.Opened[i].name == name then
-                MenuData.Opened[i].close()
+                MenuData.Opened[i].close(showRadar, closeSound, trigeerCloseEvent)
                 MenuData.Opened[i] = nil
             end
         end
     end
 end
 
-function MenuData.CloseAll(showRadar, closeSound)
+function MenuData.CloseAll(showRadar, closeSound, trigeerCloseEvent)
     for i = 1, #MenuData.Opened, 1 do
         if MenuData.Opened[i] then
-            MenuData.Opened[i].close()
+            MenuData.Opened[i].close(showRadar, closeSound, trigeerCloseEvent)
             MenuData.Opened[i] = nil
         end
-    end
-
-    if showRadar then
-        DisplayRadar(true)
-    end
-
-    if closeSound then
-        PlaySoundFrontend("MENU_CLOSE", "HUD_PLAYER_MENU", true, 0)
     end
 end
 
@@ -358,9 +357,9 @@ RegisterNUICallback('update_last_selected', function(data)
     end
 end)
 
-RegisterNUICallback('closeui', function(data)
+RegisterNUICallback('closeui', function()
     TriggerEvent("menuapi:closemenu")
-    TriggerEvent("vorp_menu:closemenu",data) -- new event
+    TriggerEvent("vorp_menu:closemenu")
 end)
 
 RegisterNUICallback('setCursor', function(data, cb)
@@ -432,7 +431,7 @@ CreateThread(function()
             if IsPauseMenuActive() then
                 if not PauseMenuState then
                     PauseMenuState = true
-                    for k, v in pairs(MenuData.GetOpenedMenus()) do
+                    for _, v in pairs(MenuData.GetOpenedMenus()) do
                         table.insert(MenusToReOpen, v)
                     end
                     MenuData.CloseAll()
@@ -442,7 +441,7 @@ CreateThread(function()
             if PauseMenuState and not IsPauseMenuActive() then
                 PauseMenuState = false
                 Wait(1000)
-                for k, v in pairs(MenusToReOpen) do
+                for _, v in pairs(MenusToReOpen) do
                     MenuData.ReOpen(v)
                 end
                 MenusToReOpen = {}
