@@ -244,10 +244,10 @@
                     {{/description}}
                     {{^isConfirmation}}
                     {{#isTextarea}}
-                    <textarea class="input-field" placeholder="{{{placeholder}}}" {{#maxLength}}maxlength="{{{maxLength}}}"{{/maxLength}}></textarea>
+                    <textarea class="input-field" placeholder="{{{placeholder}}}"></textarea>
                     {{/isTextarea}}
                     {{^isTextarea}}
-                    <input type="{{{inputType}}}" class="input-field" placeholder="{{{placeholder}}}" {{#maxLength}}maxlength="{{{maxLength}}}"{{/maxLength}} />
+                    <input type="{{{inputType}}}" class="input-field" placeholder="{{{placeholder}}}" />
                     {{/isTextarea}}
                     {{/isConfirmation}}
                     <div class="input-buttons">
@@ -1480,27 +1480,11 @@
         const menuData = MenuData.opened[namespace][name];
         const originalCursorState = menuData ? menuData.enableCursor : false;
 
-        // predefined patterns (international character support)
-        // need to document these in our docs
-        const patterns = {
-            'letters': /^[\p{L}\s]*$/u,                    // all Unicode letters and spaces
-            'numbers': /^[0-9]*$/,                         // numbers only
-            'alphanumeric': /^[\p{L}0-9]*$/u,             // all Unicode letters and numbers
-            'no-symbols': /^[\p{L}0-9\s]*$/u,             // letters, numbers, spaces (all languages)
-            'username': /^[\p{L}0-9_-]*$/u,               // username with international letters
-            'phone': /^[0-9\s\-\(\)\+]*$/,                // phone numbers with + for country codes
-            'email': /^[\p{L}0-9@._-]*$/u,                // email with international letters
-            'money': /^[0-9.,]*$/,                        // money format (supports both . and , decimals)
-            'no-special': /^[\p{L}0-9\s\-']*$/u          // no special symbols but allow apostrophes and hyphens
-        };
-
         const inputData = {
             inputType: inputConfig.inputType || 'text',
             header: inputConfig.header || 'Input',
             description: inputConfig.description || '',
             placeholder: inputConfig.placeholder || '',
-            maxLength: inputConfig.maxLength,
-            pattern: inputConfig.pattern || null,
             isConfirmation: inputConfig.inputType === 'yesno',
             confirmLabel: '',
             cancelLabel: ''
@@ -1522,72 +1506,19 @@
             enabled: true
         }));
 
-
+        let validationSchema = null;
         if (!inputData.isConfirmation && inputConfig.pattern) {
-            const inputField = inputElement.querySelector('.input-field');
-            const pattern = patterns[inputConfig.pattern] || new RegExp(inputConfig.pattern);
-
-            const tooltip = document.createElement('div');
-            tooltip.className = 'input-tooltip';
-
-            const getMessage = () => {
-                return inputConfig.patternMessage || 'Invalid characters not allowed';
-            };
-
-            tooltip.textContent = getMessage();
-            inputField.parentElement.style.position = 'relative';
-            inputField.parentElement.appendChild(tooltip);
-
-            let tooltipTimeout;
-
-            inputField.addEventListener('input', (e) => {
-                const value = e.target.value;
-                const originalValue = value;
-
-                const validChars = value.split('').filter(char => {
-                    return pattern.test(char) || pattern.test(value.substring(0, value.indexOf(char) + 1));
-                });
-                const newValue = validChars.join('');
-
-                if (originalValue !== newValue) {
-                    e.target.value = newValue;
-
-                    tooltip.classList.add('show');
-
-                    if (tooltipTimeout) {
-                        clearTimeout(tooltipTimeout);
-                    }
-
-                    tooltipTimeout = setTimeout(() => {
-                        tooltip.classList.remove('show');
-                    }, 2000);
-                }
-            });
-
-
-            inputField.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const paste = (e.clipboardData || window.clipboardData).getData('text');
-                const validChars = paste.split('').filter(char => pattern.test(char));
-                const currentValue = e.target.value;
-                const newValue = currentValue + validChars.join('');
-
-                if (paste !== validChars.join('')) {
-                    tooltip.classList.add('show');
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                    tooltipTimeout = setTimeout(() => {
-                        tooltip.classList.remove('show');
-                    }, 2000);
-                }
-
-                if (inputData.maxLength && newValue.length > inputData.maxLength) {
-                    e.target.value = newValue.substring(0, inputData.maxLength);
-                } else {
-                    e.target.value = newValue;
-                }
-            });
+            const patternRegex = typeof inputConfig.pattern === 'string' ? new RegExp(inputConfig.pattern) : inputConfig.pattern;
+            validationSchema = yup.string().matches(patternRegex, inputConfig.patternMessage || 'invalid format');
         }
 
+        if (!inputData.isConfirmation && validationSchema) {
+            const inputField = inputElement.querySelector('.input-field');
+            const tooltip = document.createElement('div');
+            tooltip.className = 'input-tooltip';
+            inputField.parentElement.style.position = 'relative';
+            inputField.parentElement.appendChild(tooltip);
+        }
 
         if (!inputData.isConfirmation) {
             const inputField = inputElement.querySelector('.input-field');
@@ -1626,12 +1557,30 @@
             }
         };
 
-        submitBtn.addEventListener('click', () => {
+        submitBtn.addEventListener('click', async () => {
             let value = true;
 
             if (!inputData.isConfirmation) {
                 const inputField = inputElement.querySelector('.input-field');
                 value = inputField.value;
+
+                if (validationSchema) {
+                    try {
+                        await validationSchema.validate(value);
+                    } catch (error) {
+                        const tooltip = inputElement.querySelector('.input-tooltip');
+                        if (tooltip) {
+                            tooltip.textContent = error.message;
+                            tooltip.classList.add('show');
+
+                            if (tooltip.timeout) clearTimeout(tooltip.timeout);
+                            tooltip.timeout = setTimeout(() => {
+                                tooltip.classList.remove('show');
+                            }, 3000);
+                        }
+                        return;
+                    }
+                }
             }
 
             closeInput();
@@ -1693,7 +1642,7 @@
                     closeInput();
                     sendResult(true, false);
                     document.removeEventListener('keydown', handleEscKey);
-                    
+
                 }
             });
         }
@@ -1748,7 +1697,7 @@
 
                                 elem.value = elem.value === "ticked" ? "unticked" : "ticked";
                                 const menuContainer = document.querySelector(".menu .menu-items");
-                                 SavedScrollTop = menuContainer ? menuContainer.scrollTop : 0;
+                                SavedScrollTop = menuContainer ? menuContainer.scrollTop : 0;
 
                                 MenuData.submit(focused.namespace, focused.name, elem);
                                 MenuData.render();
@@ -1777,7 +1726,7 @@
                         } else if (typeof focused != "undefined") {
                             MenuData.cancel(focused.namespace, focused.name);
                             $.post("https://" + MenuData.ResourceName + "/closeui",
-                                JSON.stringify({namespace: focused.namespace, name: focused.name})
+                                JSON.stringify({ namespace: focused.namespace, name: focused.name })
                             );
                         }
                         break;
