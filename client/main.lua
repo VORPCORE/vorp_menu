@@ -308,6 +308,44 @@ function MenuData.IsInputActive()
     return MenuData.InputCallbacks ~= nil
 end
 
+function MenuData.RegisterControls(controls, onPress)
+    SendNUIMessage({
+        ak_menubase_action = 'useControls',
+        ak_menubase_controls = controls
+    })
+
+    local isRelease = false
+    RegisterNUICallback('useControlsCallback', function(data, cb)
+        -- if press and hold send only one callback until release is called for optimization
+        if data.type == 'press' then
+            isRelease = false
+        end
+
+        if data.type == 'release' then
+            isRelease = true
+        end
+
+        if data.button then
+            -- for mouse press
+            local button = data.button == 0 and 'left' or data.button == 2 and 'right'
+            data.control = data.control .. '_' .. button
+        end
+
+        repeat
+            onPress(data.control)
+            Wait(0)
+        until isRelease
+
+        cb('ok')
+    end)
+end
+
+function MenuData.UnregisterControls()
+    SendNUIMessage({
+        ak_menubase_action = 'unregisterControls'
+    })
+end
+
 local MenuType = 'default'
 
 RegisterNUICallback('menu_submit', function(data)

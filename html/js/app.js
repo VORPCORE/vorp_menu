@@ -2248,8 +2248,127 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
+        const registeredListeners = [];
+        const heldKeys = new Set();
+
+        function useControls(controls) {
+            for (const control of controls) {
+                let eventType, eventHandler;
+
+                if (control === 'scrollup' || control === 'scrolldown') {
+                    eventType = 'wheel';
+                    eventHandler = (e) => {
+                        const isScrollUp = e.deltaY < 0;
+                        const isScrollDown = e.deltaY > 0;
+
+                        if ((control === 'scrollup' && isScrollUp) || (control === 'scrolldown' && isScrollDown)) {
+                            e.preventDefault();
+
+                            $.post("https://" + MenuData.ResourceName + "/useControlsCallback", JSON.stringify({
+                                control: control,
+                                type: 'release' //so it only send once
+                            }));
+                        }
+                    };
+                    document.addEventListener(eventType, eventHandler, { passive: false });
+                    registeredListeners.push({ type: eventType, handler: eventHandler, control: control });
+                } else if (control === 'mousepress') {
+                    eventType = 'mousedown';
+                    eventHandler = (e) => {
+                        if (e.button === 1) return; // no need for middle
+                        // e.button: 0 = left, 1 = middle, 2 = right
+                        const buttonKey = `${control}_${e.button}`;
+                        if (!heldKeys.has(buttonKey)) {
+                            heldKeys.add(buttonKey);
+                            e.preventDefault();
+
+                            $.post("https://" + MenuData.ResourceName + "/useControlsCallback", JSON.stringify({
+                                control: control,
+                                type: 'press',
+                                button: e.button
+                            }));
+                        }
+                    };
+                    document.addEventListener(eventType, eventHandler);
+                    registeredListeners.push({ type: eventType, handler: eventHandler, control: control });
+
+                    const mouseUpHandler = (e) => {
+                        // 0 = left, 1 = middle, 2 = right
+                        if (e.button === 1) return; // no need for middle
+                        const buttonKey = `${control}_${e.button}`;
+                        if (heldKeys.has(buttonKey)) {
+                            heldKeys.delete(buttonKey);
+                            e.preventDefault();
+
+                            $.post("https://" + MenuData.ResourceName + "/useControlsCallback", JSON.stringify({
+                                control: control,
+                                type: 'release',
+                                button: e.button
+                            }));
+                        }
+                    };
+                    document.addEventListener('mouseup', mouseUpHandler);
+                    registeredListeners.push({ type: 'mouseup', handler: mouseUpHandler, control: control });
+                } else {
+
+                    eventType = 'keydown';
+                    eventHandler = (e) => {
+                        if (e.key === control) {
+                            if (!heldKeys.has(control)) {
+                                heldKeys.add(control);
+                                e.preventDefault();
+
+                                $.post("https://" + MenuData.ResourceName + "/useControlsCallback", JSON.stringify({
+                                    control: control,
+                                    type: 'press'
+                                }));
+                            }
+                        }
+                    };
+
+                    document.addEventListener(eventType, eventHandler);
+                    registeredListeners.push({ type: eventType, handler: eventHandler, control: control });
+
+                    const keyUpHandler = (e) => {
+                        if (e.key === control) {
+                            heldKeys.delete(control)
+                            e.preventDefault();
+
+                            $.post("https://" + MenuData.ResourceName + "/useControlsCallback", JSON.stringify({
+                                control: control,
+                                type: 'release'
+                            }));
+                        }
+                    };
+                    document.addEventListener('keyup', keyUpHandler);
+                    registeredListeners.push({ type: 'keyup', handler: keyUpHandler, control: control });
+                }
+            }
+        }
+
+        function unregisterControls() {
+            for (const listener of registeredListeners) {
+                document.removeEventListener(listener.type, listener.handler);
+            }
+            registeredListeners.length = 0;
+            heldKeys.clear();
+
+        }
 
         window.addEventListener("message", (event) => {
+            if (event.data.ak_menubase_action === 'useControls') {
+                const controls = event.data.ak_menubase_controls;
+
+                if (registeredListeners.length > 0)
+                    unregisterControls();
+
+                return useControls(controls);
+            }
+
+            if (event.data.ak_menubase_action === 'unregisterControls') {
+                return unregisterControls();
+            }
+
             onData(event.data);
         });
 
