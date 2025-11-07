@@ -411,12 +411,7 @@
         });
 
         $(menuElement).find('.grid-item').on('mouseenter', function () {
-            isMouseOverMenu = true;
             $.post("https://" + MenuData.ResourceName + "/playsound");
-        });
-
-        $(menuElement).find('.grid-item').on('mouseleave', function () {
-            isMouseOverMenu = false;
         });
 
         $(menuElement).find('.slider-left, .text-slider-left').on('click', function (e) {
@@ -590,12 +585,10 @@
         });
 
         $(menuElement).find('.menu-confirm-btn, .menu-cancel-btn').on('mouseenter', function () {
-            isMouseOverMenu = true;
             $.post("https://" + MenuData.ResourceName + "/playsound");
         });
 
         $(menuElement).find('.menu-confirm-btn, .menu-cancel-btn').on('mouseleave', function () {
-            isMouseOverMenu = false;
             $.post("https://" + MenuData.ResourceName + "/playsound");
         });
 
@@ -2258,7 +2251,17 @@
 
         const registeredListeners = [];
         const heldKeys = new Set();
-        let isMouseOverMenu = false;
+
+        // these keys are the menu default and cant be used besides for the menu
+        const menuKeyboardControls = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Escape', 'Backspace'];
+        function isMenuOpen() {
+            const focusedMenu = MenuData.getFocused();
+            return focusedMenu && MenuData.opened[focusedMenu.namespace] && MenuData.opened[focusedMenu.namespace][focusedMenu.name];
+        }
+
+        function isInsideMenu(element) {
+            return $(element).closest('.menu').length > 0;
+        }
 
         function useControls(controls) {
             for (const control of controls) {
@@ -2284,12 +2287,13 @@
                 } else if (control === 'mousepress') {
                     eventType = 'mousedown';
                     eventHandler = (e) => {
-                        // block if mouse is over menu elements 
-                        if (isMouseOverMenu) {
+                        // block if mouse is over menu elements
+                        if (isInsideMenu(e.target)) {
                             return;
                         }
 
                         if (e.button === 1) return; // no need for middle
+
                         const buttonKey = `${control}_${e.button}`;
                         if (!heldKeys.has(buttonKey)) {
                             heldKeys.add(buttonKey);
@@ -2306,12 +2310,13 @@
                     registeredListeners.push({ type: eventType, handler: eventHandler, control: control });
 
                     const mouseUpHandler = (e) => {
-                        // block if mouse is over menu elements 
-                        if (isMouseOverMenu) {
+                        // block if mouse is over menu elements
+                        if (isInsideMenu(e.target)) {
                             return;
                         }
 
                         if (e.button === 1) return; // no need for middle
+
                         const buttonKey = `${control}_${e.button}`;
                         if (heldKeys.has(buttonKey)) {
                             heldKeys.delete(buttonKey);
@@ -2331,6 +2336,11 @@
                     eventType = 'keydown';
                     eventHandler = (e) => {
                         if (e.key === control) {
+                            // block if key conflicts with menu controls and menu is open
+                            if (menuKeyboardControls.includes(control) && isMenuOpen()) {
+                                return;
+                            }
+
                             if (!heldKeys.has(control)) {
                                 heldKeys.add(control);
                                 e.preventDefault();
@@ -2348,6 +2358,11 @@
 
                     const keyUpHandler = (e) => {
                         if (e.key === control) {
+                            // block if key conflicts with menu controls and menu is open
+                            if (menuKeyboardControls.includes(control) && isMenuOpen()) {
+                                return;
+                            }
+
                             heldKeys.delete(control)
                             e.preventDefault();
 
@@ -2369,7 +2384,6 @@
             }
             registeredListeners.length = 0;
             heldKeys.clear();
-            isMouseOverMenu = false;
         }
 
 
