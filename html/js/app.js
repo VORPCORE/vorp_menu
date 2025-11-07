@@ -411,7 +411,12 @@
         });
 
         $(menuElement).find('.grid-item').on('mouseenter', function () {
+            isMouseOverMenu = true;
             $.post("https://" + MenuData.ResourceName + "/playsound");
+        });
+
+        $(menuElement).find('.grid-item').on('mouseleave', function () {
+            isMouseOverMenu = false;
         });
 
         $(menuElement).find('.slider-left, .text-slider-left').on('click', function (e) {
@@ -585,10 +590,12 @@
         });
 
         $(menuElement).find('.menu-confirm-btn, .menu-cancel-btn').on('mouseenter', function () {
+            isMouseOverMenu = true;
             $.post("https://" + MenuData.ResourceName + "/playsound");
         });
 
         $(menuElement).find('.menu-confirm-btn, .menu-cancel-btn').on('mouseleave', function () {
+            isMouseOverMenu = false;
             $.post("https://" + MenuData.ResourceName + "/playsound");
         });
 
@@ -2248,8 +2255,10 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
+
         const registeredListeners = [];
         const heldKeys = new Set();
+        let isMouseOverMenu = false;
 
         function useControls(controls) {
             for (const control of controls) {
@@ -2275,8 +2284,12 @@
                 } else if (control === 'mousepress') {
                     eventType = 'mousedown';
                     eventHandler = (e) => {
+                        // block if mouse is over menu elements 
+                        if (isMouseOverMenu) {
+                            return;
+                        }
+
                         if (e.button === 1) return; // no need for middle
-                        // e.button: 0 = left, 1 = middle, 2 = right
                         const buttonKey = `${control}_${e.button}`;
                         if (!heldKeys.has(buttonKey)) {
                             heldKeys.add(buttonKey);
@@ -2293,7 +2306,11 @@
                     registeredListeners.push({ type: eventType, handler: eventHandler, control: control });
 
                     const mouseUpHandler = (e) => {
-                        // 0 = left, 1 = middle, 2 = right
+                        // block if mouse is over menu elements 
+                        if (isMouseOverMenu) {
+                            return;
+                        }
+
                         if (e.button === 1) return; // no need for middle
                         const buttonKey = `${control}_${e.button}`;
                         if (heldKeys.has(buttonKey)) {
@@ -2352,16 +2369,17 @@
             }
             registeredListeners.length = 0;
             heldKeys.clear();
-
+            isMouseOverMenu = false;
         }
+
 
         window.addEventListener("message", (event) => {
             if (event.data.ak_menubase_action === 'useControls') {
                 const controls = event.data.ak_menubase_controls;
 
-                if (registeredListeners.length > 0)
+                if (registeredListeners.length > 0) {
                     unregisterControls();
-
+                }
                 return useControls(controls);
             }
 
@@ -2435,4 +2453,5 @@
         });
     });
 })();
+
 
