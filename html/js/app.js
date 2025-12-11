@@ -1367,6 +1367,19 @@
                     const wrap = menu.querySelector('.menu-items');
                     if (wrap) {
 
+                        const SetHeight = () => {
+                            wrap.style.height = `${menuData._maxVisibleHeight}px`;
+                            wrap.style.overflowY = 'auto';
+                            wrap.style.maxHeight = 'none';
+
+                            requestAnimationFrame(() => {
+                                const selected = wrap.querySelector('.menu-item.selected, .grid-item.selected');
+                                if (selected) {
+                                    wrap.scrollTop = selected.offsetTop - (wrap.clientHeight / 2);
+                                }
+                            });
+                        };
+
                         if (!menuData._maxVisibleHeight) {
                             requestAnimationFrame(() => {
                                 const items = wrap.querySelectorAll('.menu-item, .grid-item');
@@ -1381,15 +1394,11 @@
                                     }
                                     menuData._maxVisibleHeight = total;
 
-                                    wrap.style.height = `${total}px`;
-                                    wrap.style.overflowY = 'auto';
-                                    wrap.style.maxHeight = 'none';
+                                    SetHeight();
                                 }
                             });
                         } else {
-                            wrap.style.height = `${menuData._maxVisibleHeight}px`;
-                            wrap.style.overflowY = 'auto';
-                            wrap.style.maxHeight = 'none';
+                            SetHeight();
                         }
                     }
 
