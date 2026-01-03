@@ -1375,7 +1375,10 @@
                             requestAnimationFrame(() => {
                                 const selected = wrap.querySelector('.menu-item.selected, .grid-item.selected');
                                 if (selected) {
-                                    wrap.scrollTop = selected.offsetTop - (wrap.clientHeight / 2);
+                                    selected.scrollIntoView({
+                                        block: 'center',
+                                        behavior: 'auto'
+                                    });
                                 }
                             });
                         };
