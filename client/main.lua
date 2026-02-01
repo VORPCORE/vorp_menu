@@ -364,6 +364,10 @@ end)
 
 RegisterNUICallback('menu_cancel', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    if not menu then
+        return print("menu not found", data._namespace, data._name)
+    end
+
     if menu.cancel ~= nil then
         menu.cancel(data, menu)
     end
@@ -371,6 +375,9 @@ end)
 
 RegisterNUICallback('menu_change', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    if not menu then
+        return print("menu not found", data._namespace, data._name)
+    end
 
     for i = 1, #data.elements, 1 do
         menu.setElement(i, 'value', data.elements[i].value)
@@ -389,6 +396,9 @@ end)
 
 RegisterNUICallback('update_last_selected', function(data)
     local menu = MenuData.GetOpened(MenuType, data._namespace, data._name)
+    if not menu then
+        return print("menu not found", data._namespace, data._name)
+    end
     local menuKey = menu.type .. "_" .. menu.namespace .. "_" .. menu.name
     if data.selected ~= nil then
         MenuData.LastSelectedIndex[menuKey] = data.selected
