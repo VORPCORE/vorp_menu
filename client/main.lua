@@ -36,7 +36,7 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
     menu.change        = change
     menu.data.selected = MenuData.LastSelectedIndex[menu.type .. "_" .. menu.namespace .. "_" .. menu.name] or 0
 
-    menu.close         = function(showRadar, closeSound, trigeerCloseEvent)
+    menu.close         = function(showRadar, closeSound, triggerCloseEvent)
         MenuData.RegisteredTypes[menuType].close(namespace, name)
 
         for i = 1, #MenuData.Opened, 1 do
@@ -54,8 +54,8 @@ function MenuData.Open(menuType, namespace, name, data, submit, cancel, change, 
         if closeSound then
             PlaySoundFrontend("MENU_CLOSE", "HUD_PLAYER_MENU", true, 0)
         end
-
-        if trigeerCloseEvent then
+        -- flag to trigger the close event or leave false to not trigger the event, if nil by default will close for backwards compatibility
+        if triggerCloseEvent or triggerCloseEvent == nil then
             TriggerEvent("vorp_menu:closemenu")
         end
 
@@ -405,6 +405,7 @@ RegisterNUICallback('update_last_selected', function(data)
     end
 end)
 
+-- is fired when pressing backspace or right mouse click if enableCursor is true
 RegisterNUICallback('closeui', function()
     TriggerEvent("menuapi:closemenu")
     TriggerEvent("vorp_menu:closemenu")
