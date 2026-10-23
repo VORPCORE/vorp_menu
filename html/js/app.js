@@ -979,53 +979,67 @@
 
     MenuData.open = function (namespace, name, data) {
         lastmenu = data.lastmenu;
-        if (typeof MenuData.opened[namespace] == "undefined") {
+
+        if (typeof MenuData.opened[namespace] === "undefined") {
             MenuData.opened[namespace] = {};
         }
 
-        if (typeof MenuData.opened[namespace][name] != "undefined") {
-            MenuData.close(namespace, name);
-        }
-
-        if (typeof MenuData.pos[namespace] == "undefined") {
+        if (typeof MenuData.pos[namespace] === "undefined") {
             MenuData.pos[namespace] = {};
         }
 
-        for (let i = 0; i < data.elements.length; i++) {
-            if (typeof data.elements[i].type == "undefined") {
-                data.elements[i].type = "default";
+        const existingMenu = MenuData.opened[namespace][name];
+        const isRefresh = typeof existingMenu !== "undefined";
+
+        let selectedIndex = MenuData.pos[namespace][name] ?? 0;
+
+        if (isRefresh) {
+            const oldMenu = document.getElementById("menu_" + namespace + "_" + name);
+            const oldItems = oldMenu?.querySelector(".menu-items");
+
+            if (oldItems) {
+                SavedScrollTop = oldItems.scrollTop;
+            }
+
+            if (data.elements.length > 0) {
+                selectedIndex = Math.min(selectedIndex, data.elements.length - 1);
+            } else {
+                selectedIndex = 0;
             }
         }
 
-        data._index = MenuData.focus.length;
+        for (let i = 0; i < data.elements.length; i++) {
+            const element = data.elements[i];
+
+            if (typeof element.type === "undefined") {
+                element.type = "default";
+            }
+
+            element._namespace = namespace;
+            element._name = name;
+            element.selected = i === selectedIndex;
+        }
+
         data._namespace = namespace;
         data._name = name;
 
-        for (let i = 0; i < data.elements.length; i++) {
-            data.elements[i]._namespace = namespace;
-            data.elements[i]._name = name;
+        let focusIndex = MenuData.focus.findIndex(entry => entry.namespace === namespace && entry.name === name);
+
+        if (focusIndex === -1) {
+            focusIndex = MenuData.focus.length;
         }
-        let selectedIndex = (typeof MenuData.pos[namespace][name] !== "undefined") ? MenuData.pos[namespace][name] : 0;
-        for (let i = 0; i < data.elements.length; i++) {
-            data.elements[i].selected = (i === selectedIndex);
-        }
+
+        data._index = focusIndex;
 
         MenuData.opened[namespace][name] = data;
-        MenuData.pos[namespace][name] = 0;
+        MenuData.pos[namespace][name] = selectedIndex;
 
-        for (let i = 0; i < data.elements.length; i++) {
-            if (data.elements[i].selected) {
-                MenuData.pos[namespace][name] = i;
-            } else {
-                data.elements[i].selected = false;
-            }
+        if (!isRefresh) {
+            MenuData.focus.push({
+                namespace: namespace,
+                name: name
+            });
         }
-
-        MenuData.focus.push({
-            namespace: namespace,
-            name: name,
-        });
-
 
         data.displayInput = function (inputConfig, onSubmit, onCancel) {
             MenuData.inputCallbacks = {
@@ -1036,23 +1050,25 @@
             MenuData.displayInput(namespace, name, inputConfig);
         };
 
-
-
         MenuData.render();
 
-        if (SavedScrollTop > 0) { // refresh the menu this gets called so we gotta scroll to where we were
+        if (isRefresh) {
             requestAnimationFrame(() => {
-                const menuItems = document.querySelector('.menu .menu-items');
-                if (menuItems) {
-                    menuItems.scrollTop = SavedScrollTop;
-                    SavedScrollTop = 0;
+                const menu = document.getElementById("menu_" + namespace + "_" + name);
+                const items = menu?.querySelector(".menu-items");
+
+                if (items) {
+                    items.scrollTop = SavedScrollTop;
                 }
             });
         }
 
-        const selectedElement = $("#menu_" + namespace + "_" + name).find(".menu-item.selected, .grid-item.selected");
-        if (selectedElement.length > 0) {
-            scrollToElement(selectedElement[0]);
+        if (!isRefresh) {
+            const selectedElement = $("#menu_" + namespace + "_" + name).find(".menu-item.selected, .grid-item.selected");
+
+            if (selectedElement.length > 0) {
+                scrollToElement(selectedElement[0]);
+            }
         }
 
         $.post("https://" + MenuData.ResourceName + "/setCursor", JSON.stringify({
